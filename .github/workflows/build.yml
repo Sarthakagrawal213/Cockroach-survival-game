@@ -1,0 +1,41 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+
+      - name: Download Code
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Compile
+        run: javac src/*.java
+
+      - name: Create JAR
+        run: jar cfe CockroachSurvival.jar App -C src .
+
+      - name: Build EXE
+        run: |
+          jpackage `
+          --type exe `
+          --input . `
+          --main-jar CockroachSurvival.jar `
+          --main-class App `
+          --name "Cockroach Survival"
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cockroach-Survival
+          path: "*.exe"
